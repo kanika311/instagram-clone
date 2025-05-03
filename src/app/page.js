@@ -1,101 +1,156 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from "react";
+import Sidebar from "../component/sidebar.jsx";
+import ReelSection from "@/component/reel.jsx";
+import Profile from "@/component/profile.jsx";
+import StorySection from "../component/Stories.jsx";
+import "./globals.css";
+
+import EditProfile from "@/component/editProfile.jsx";
+import Messages from "@/component/Message.jsx";
+
+import SuggestedUsers from "@/component/Folllowerssuggestion.jsx";
+
+import { useAuth } from "@/authentication/userauth.js";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser, getUserById } from "@/redux/slices/auth.js";
+import { followersList, followingList } from "@/redux/slices/follow.js";
+import { useRouter } from "next/navigation";
+
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [activeSection, setActiveSection] = useState("home"); // Default section
+const dispatch = useDispatch();
+// getuser APi
+const user = useSelector((state) => state.auth.user);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+
+console.log(user?.name, "userlist"); 
+
+const handleGetProfile = async() => {
+ const result = await dispatch(getUser())
+ if(result){
+  return true
+ }
+}
+
+useEffect(()=>{
+  handleGetProfile()
+},[activeSection])
+// post followers
+const handlefollowersList=async()=>{
+  try {
+    const result=await dispatch(followersList())
+    if(result){
+     
+      return result.data;
+    }
+    return false
+    
+  } catch (error) {
+    console.log(error)
+    
+  }
+}
+useEffect(()=>{
+  handlefollowersList();
+},[])
+
+const handlefollowingList=async()=>{
+  try {
+    const result=await dispatch(followingList())
+    if(result){
+     
+      return result.data;
+    }
+    return false
+    
+  } catch (error) {
+    console.log(error)
+    
+  }
+}
+useEffect(()=>{
+  handlefollowingList();
+},[])
+// get user by id
+const handlegetUserProfile=async()=>{
+  try {
+    // Reset to current user's profile
+    const currentUserId = user?.id;
+    if (!currentUserId) {
+      console.log("No user ID available");
+      return false;
+    }
+    const result = await dispatch(getUserById(currentUserId));
+    if(result){
+      console.log(result,"result of get user by id");
+      setActiveSection("profile");
+    }
+    return false;
+  } catch (error) {
+    console.log(error,"error in get user by id");
+  }
+}
+useEffect(()=>{
+  if (activeSection === "profile") {
+    handlegetUserProfile();
+  }
+},[activeSection, user])
+  const renderContent = () => {
+    switch (activeSection) {
+      case "profile":
+        return <Profile setActiveSection={setActiveSection} onClick={handlegetUserProfile}/>;
+        case "editprofile":
+          return <EditProfile user={user}/>;
+          case "reels":
+            return (
+            <div className="h-[500px]  flex-col  overflow-hidden mt-10 rounded-xl w-[60%] flex items-center justify-center mx-[180px] z-0">
+            <ReelSection />
+          
+            </div>
+              );
+              case "message":
+                return <Messages user={user}/>;
+
+          
+      case "home":
+      default:
+        return (
+          <div>
+            <div className="flex items-center justify-center">
+              <StorySection />
+            </div>
+            <div className="h-[500px] flex flex-col items-center justify-center overflow-hidden mt-10 rounded-xl ">
+              <ReelSection />
+            </div>
+          </div>
+        );
+    }
+  };
+
+ 
+    return (
+    
+      <div className="relative grid grid-cols-12 h-screen border-r-2px border-[#dbdbdb] p-0 m-0 z-0">
+        <div className="col-span-1 lg:col-span-2 md:col-span-1 sticky h-[100%]">
+          <Sidebar setActiveSection={setActiveSection} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    
+        {activeSection === "home" ? (
+          <>
+            <div className="col-span-11 lg:col-span-7 md:col-span-11 w-full">{renderContent()}</div>
+            <div className="hidden lg:block col-span-3 h-screen w-full">
+             <SuggestedUsers user={user}/>
+            </div>
+          </>
+        ) : (
+          <div className="col-span-11 lg:col-span-10 md:col-span-11 w-full">{renderContent()}</div>
+        )}
+      </div>
+      
+    
   );
 }

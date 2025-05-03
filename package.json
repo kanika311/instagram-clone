@@ -9,14 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.0.2",
+    "@reduxjs/toolkit": "^2.6.1",
+    "@tailwindcss/postcss": "^4.1.1",
+    "axios": "^1.8.4",
+    "formik": "^2.4.6",
+    "lucide-react": "^0.487.0",
+    "next": "14.2.26",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.26"
+    "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.5.0",
+    "redux-persist": "^6.0.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "swiper": "^11.2.6",
+    "tailwindcss": "^4.1.1",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.26"
+    "eslint-config-next": "14.2.26",
+    "postcss": "^8.5.3"
   }
 }
