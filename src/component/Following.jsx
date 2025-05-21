@@ -9,9 +9,10 @@ import { getUserById } from "@/redux/slices/auth";
 
 export default function FollowingModal({ show, onClose }) {
   if (!show) return null;
-const router=useRouter()
+  const router = useRouter();
   const dispatch = useDispatch();
-  const following = useSelector((state) => state.follow.following || []);
+  const [following, setFollowing] = useState([]);
+  const user = useSelector((state) => state.auth.user);
   const [selectedUser, setSelectedUser] = useState(null); // Holds the user selected for unfollow
 console.log(following,"following")
   const handleUnfollowUser = async (id) => {

@@ -5,6 +5,7 @@ import { PiUsersThreeBold } from 'react-icons/pi';
 import { useDispatch, useSelector } from 'react-redux';
 import { RxCross2 } from "react-icons/rx";
 import { useAuth } from '@/authentication/userauth';
+import Image from 'next/image';
 
 
 const CreateNewPost = ({image,file,onClose}) => {
@@ -51,10 +52,12 @@ console.log(res,"post")
           <p className="absolute top-2 left-2 bg-black text-white text-xs rounded-full px-2 py-1">
             Click photo to tag people
           </p>
-          <img
+          <Image
             src={imagePreview}
             alt="preview"
-            className="object-cover h-full w-full"
+            width={500}
+            height={500}
+            className="max-h-[500px] object-contain"
           />
         </div>
 
@@ -108,10 +111,12 @@ console.log(res,"post")
             <h3 className="font-semibold mb-1">Share to</h3>
             <div className="flex items-center justify-between border rounded-md px-3 py-2">
               <div className="flex items-center gap-2">
-                <img
-                  src={image}
-                  alt="user"
-                  className="h-8 w-8 rounded-full object-cover"
+                <Image
+                  src={user.avatar}
+                  alt={user.username}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
                 />
                 <div>
                   <p className="text-sm font-medium">{user.username}</p>

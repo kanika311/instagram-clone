@@ -94,12 +94,12 @@ setIsForgetPassword(!isForgetPassword)
           Log in with Facebook
         </button>
         <p onClick={handleForgetPassword} className="text-center text-blue-600 cursor-pointer">Forgot password?</p>
-        {isForgetPassword &&(
-router.push('/resetpassword')
+        {isForgetPassword && (
+          router.push('/resetpassword')
         )}
         <div className="text-center mt-4 border-t pt-4">
           <p className="text-sm">
-            Don't have an account? <a href="#" className="text-blue-600">Sign up</a>
+            Don&apos;t have an account? <a href="#" className="text-blue-600">Sign up</a>
           </p>
         </div>
         {/* <div className="text-center mt-4">

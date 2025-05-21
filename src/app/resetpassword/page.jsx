@@ -48,7 +48,7 @@ setIsChange(!isChange);
         </div>
         <h2 className="text-lg font-semibold mb-2">Trouble logging in?</h2>
         <p className="text-sm text-gray-600 mb-4">
-          Enter your email, phone 
+          Enter your email, phone or username and we&apos;ll send you a link to get back into your account.
         </p>
         <form onSubmit={handleSubmit}>
         <input

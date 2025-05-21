@@ -1,38 +1,38 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RemoveUser } from '@/redux/slices/follow';
-
-
+import { useRouter } from 'next/navigation';
 
 export default function FollowersModal({ show, onClose }) {
   if (!show) return null;
-  const followers=useSelector((state)=>state.follow.followers||[]);
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const [followers, setFollowers] = useState([]);
+  const user = useSelector((state) => state.auth.user);
   
-  const dispatch=useDispatch();
-// unfolllow user
-const [isUnfollowers,setisUnfollowers]=useState(null);
-console.log(isUnfollowers,"unfollow data")
-const handleFollowersUser=(user)=>{
-setisUnfollowers(user)
-}
-const handleUnfollowUser=async(id)=>{
-  try {
-    const data={
-       "followerId":id
-    }
-    const result=await dispatch(RemoveUser(data))
-    if(result.data){
-      setisUnfollowers(null)
-      return result.data
-    }
-    
-  } catch (error) {
-    console.log(error)
-    
+  const [isUnfollowers,setisUnfollowers]=useState(null);
+  console.log(isUnfollowers,"unfollow data")
+  const handleFollowersUser=(user)=>{
+    setisUnfollowers(user)
   }
-}
+  const handleUnfollowUser=async(id)=>{
+    try {
+      const data={
+         "followerId":id
+      }
+      const result=await dispatch(RemoveUser(data))
+      if(result.data){
+        setisUnfollowers(null)
+        return result.data
+      }
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
+  }
   return (
     <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-4 relative">

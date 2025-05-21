@@ -11,6 +11,7 @@ import { useSocket } from "@/Content/socketContext";
 import { useSelector,useDispatch } from "react-redux";
 import messageApi from "@/mocks/message";
 import { chatSingleUser } from "@/redux/slices/message";
+import Image from 'next/image';
 
 
 
@@ -73,10 +74,12 @@ console.log(chatmessage,"result of chat")
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
-          <img
+          <Image
             src={chatUser?.user?.picture || "/photos/avatar.jpg"}
             alt="User"
-            className="w-10 h-10 rounded-full object-cover"
+            width={40}
+            height={40}
+            className="rounded-full"
           />
           <div>
             <p className="font-semibold">{chatUser?.user?.username}</p>
@@ -116,9 +119,11 @@ console.log(chatmessage,"result of chat")
                   {new Date(msg.createdAt).toLocaleTimeString()}
                 </div>
               </div>
-              <img
+              <Image
                 src={receiverProfilePic}
                 alt="sender"
+                width={20}
+                height={20}
                 className="w-8 h-8 rounded-full ml-2"
               />
             </div>
@@ -126,9 +131,11 @@ console.log(chatmessage,"result of chat")
           {/* Receiver's message: show profile and name on left */}
           {!isSender && (
             <div className="flex items-end">
-              <img
+              <Image
                 src={senderProfilePic}
                 alt='you'
+                width={20}
+                height={20}
                 className="w-8 h-8 rounded-full mr-2"
               />
               <div>
