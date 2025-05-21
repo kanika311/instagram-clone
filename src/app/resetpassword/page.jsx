@@ -67,7 +67,7 @@ setIsChange(!isChange);
             router.push('/changepassword')
         )}
         </form>
-        <p className="text-xs text-blue-500 mt-2 mb-4 cursor-pointer hover:underline">Can't reset your password?</p>
+        <p className="text-xs text-blue-500 mt-2 mb-4 cursor-pointer hover:underline">Can&apos;t reset your password?</p>
 
         <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">

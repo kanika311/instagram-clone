@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -51,23 +51,20 @@ const [isFollowing,setIsFollowing]=useState(false);
 const  handlefollowing=()=>{
   setIsFollowing(true);
 }
-const handlefollowingList=async()=>{
+const handlefollowingList = useCallback(async () => {
   try {
-    const result=await dispatch(followingList())
-    if(result){
-     
-      return result.data;
+    const result = await dispatch(followingList());
+    if (result) {
+      console.log(result, "result of get following list");
     }
-    return false
-    
   } catch (error) {
-    console.log(error)
-    
+    console.log(error, "error in get following list");
   }
-}
-useEffect(()=>{
+}, [dispatch]);
+
+useEffect(() => {
   handlefollowingList();
-},[])
+}, [handlefollowingList]);
 
 // Add this skeleton component at the top with other components
 const PostSkeleton = () => {

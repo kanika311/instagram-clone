@@ -3,6 +3,7 @@
 import { IoClose } from "react-icons/io5";
 import { FaCheckCircle } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
 
 
 export default function SwitchAccountModal({ onClose ,user}) {
@@ -32,10 +33,12 @@ export default function SwitchAccountModal({ onClose ,user}) {
         {/* Account List */}
         <div className="flex items-center justify-between px-4 py-2 hover:bg-gray-100 rounded-md cursor-pointer">
           <div className="flex items-center gap-3">
-            <img
-              src="/photos/pic1.jpg"
-              alt="profile"
-              className="w-10 h-10 rounded-full object-cover"
+            <Image
+              src={user?.picture || "/photos/avatar.jpg"}
+              alt={user?.username}
+              width={44}
+              height={44}
+              className="rounded-full object-cover"
             />
             <span className="font-medium">{user.username}</span>
           </div>

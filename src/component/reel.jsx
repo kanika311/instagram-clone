@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Mousewheel } from "swiper/modules";
 import "swiper/css";
@@ -12,6 +12,7 @@ import PostDetail from "./Post";
 import { CiHeart } from "react-icons/ci";
 import postApi from "@/mocks/post";
 import Skeleton from '@mui/material/Skeleton';
+import Image from 'next/image';
 
 export default function ReelsPage() {
   const dispatch=useDispatch();
@@ -23,23 +24,20 @@ export default function ReelsPage() {
 const[isPost ,setIsPost]=useState(false)
 
 // postlist
-  const handlePostList=async()=>{
-
-  try {
-    const response=await dispatch(ShowPost());
-    if(response){
-      return response
+  const handlePostList = useCallback(async () => {
+    try {
+      const result = await dispatch(ShowPost());
+      if (result) {
+        console.log(result, "result of get post list");
+      }
+    } catch (error) {
+      console.log(error, "error in get post list");
     }
-  return false
-  
-  } catch (error) {
-  console.log(error,"error in post ")
-  } 
-  
-  }
+  }, [dispatch]);
+
   useEffect(() => {
     handlePostList();
-  }, []);
+  }, [handlePostList]);
   console.log(postList,"post")
   // post detail
   const handlePostDetails = (post) => {
@@ -104,11 +102,13 @@ const[isPost ,setIsPost]=useState(false)
             {Array.isArray(reel?.posts) &&
               reel.posts.map((img, imgIndex) => (
                 <div key={imgIndex} className="text-black mb-4">
-                  <img
+                  <Image
                     src={img.pic}
                     alt={`Post by ${img?.username}`}
-                    onClick={() => handlePostDetails(reel)}
+                    width={400}
+                    height={400}
                     className="w-full h-full object-cover rounded-lg cursor-pointer"
+                    onClick={() => handlePostDetails(reel)}
                   />
                 </div>
               ))}

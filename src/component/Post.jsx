@@ -5,7 +5,7 @@ import { FaRegComment } from "react-icons/fa6";
 import { CiHeart } from "react-icons/ci";
 import { CommentReply, DeletePost, getComment, postComment, PostLike, ShowPost } from '@/redux/slices/post';
 import { RxCross1 } from 'react-icons/rx';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaHeart } from "react-icons/fa"; // filled red heart icon
 import { MdDelete } from 'react-icons/md';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
@@ -113,27 +113,22 @@ const handlePostLike = async () => {
     }
   };
   // getcomment
-  const handleGetComment = async () => {
+  const handleGetComment = useCallback(async (postId) => {
     try {
-      console.log(updatedPost?.id,"postid")
-      const result = await dispatch(getComment(updatedPost?.id))
-
+      const result = await dispatch(getComment(postId));
       if (result) {
-        return true
-
-      } else {
-        return false; // 👈 THIS is why you're getting `true/false`
+        console.log(result, "result of get comments");
       }
-
-
     } catch (error) {
-      console.log(error)
-
+      console.log(error, "error in get comments");
     }
-  }
+  }, [dispatch]);
+
   useEffect(() => {
-    handleGetComment()
-  }, [id])
+    if (post?._id) {
+      handleGetComment(post._id);
+    }
+  }, [post?._id, handleGetComment]);
 
   // delete
   const [isDelete, setIsDelete] = useState(false);

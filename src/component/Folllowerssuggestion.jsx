@@ -4,7 +4,7 @@ import { followUser } from '@/redux/slices/follow';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Skeleton from '@mui/material/Skeleton';
 
@@ -46,11 +46,7 @@ const router=useRouter()
   const following = user.following || [];
   console.log(following,"following users")
   
-  useEffect(() => {
-    handleGetUsers();
-  }, [following]);
-  
-  const handleGetUsers = async () => {
+  const handleGetUsers = useCallback(async () => {
     try {
       const result = await dispatch(getUserList());
       if (result?.data?.data) {
@@ -65,7 +61,11 @@ const router=useRouter()
     } catch (err) {
       console.error("Error getting users:", err);
     }
-  };
+  }, [dispatch, following]);
+  
+  useEffect(() => {
+    handleGetUsers();
+  }, [handleGetUsers]);
   
   const filterSuggestions = (allUsers, followingList) => {
     const followedIds = new Set(followingList);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { FiPhoneCall } from "react-icons/fi";
 import { BsCameraVideo, BsInfoCircle } from "react-icons/bs";
 import { HiOutlineMicrophone } from "react-icons/hi";
@@ -54,16 +54,20 @@ const chatmessage=useSelector((state)=>state.message)
   }, [chatmessage?.chat?.data]);
 
   // chat single user
-const handleMessages = async (chatId) => {
-  if (!chatId) {
-    console.error("No chatId provided");
-    return;
-  }
-  await dispatch(chatSingleUser(chatId));
-};
-useEffect(()=>{
-  handleMessages(chatUser?.chatId);
-},[chatUser])
+  const handleMessages = useCallback(async (chatId) => {
+    if (!chatId) {
+      console.error("No chatId provided");
+      return;
+    }
+    await dispatch(chatSingleUser(chatId));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (chatUser?.chatId) {
+      handleMessages(chatUser.chatId);
+    }
+  }, [chatUser?.chatId, handleMessages]);
+
 console.log(chatmessage,"result of chat")
 
 
