@@ -15,7 +15,12 @@ export const SocketProvider = ({ userId, children }) => {
 
   useEffect(() => {
     if (userId) {
-      socket.current = io("http://localhost:4000", { transports: ["websocket"] });
+      const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
+
+socket.current = io(SOCKET_URL, {
+  transports: ["websocket"],
+  withCredentials: true,
+});
 
       socket.current.emit("new user", { userId });
 
