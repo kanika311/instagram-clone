@@ -22,6 +22,13 @@ export default function ReelsPage() {
 
   const [selectedPost,setSelectedPost]=useState(null)  
 const[isPost ,setIsPost]=useState(false)
+useEffect(() => {
+  const likedStatus = {};
+  postList.forEach(post => {
+    likedStatus[post.id] = post.isLiked || false;
+  });
+  setIsLiked(likedStatus);
+}, [postList]);
 
 // postlist
   const handlePostList = useCallback(async () => {
@@ -46,25 +53,35 @@ const[isPost ,setIsPost]=useState(false)
   };
   // post like
   const handlePostLike = async (id) => {
-    if (isLiked[id]) return; // prevent multiple likes
+    const prevLiked = isLiked[id] || false;
+    
+    // Optimistically update the UI
+    setIsLiked((prev) => ({
+      ...prev,
+      [id]: !prevLiked,
+    }));
   
     try {
-      const response = await postApi.postLike(id)
-
-  
-      console.log("API Response", response);
-  
+      const response = await postApi.postLike(id);
       if (response) {
-      
-        const response=await dispatch(ShowPost());
-        console.log(response,"postlike")
+        await dispatch(ShowPost()); // Re-fetch post list
       } else {
-        console.log("Like failed: ", response);
+        // Revert like state if API fails
+        setIsLiked((prev) => ({
+          ...prev,
+          [id]: prevLiked,
+        }));
       }
     } catch (error) {
       console.log("Error in liking post:", error);
+      // Revert like state on error
+      setIsLiked((prev) => ({
+        ...prev,
+        [id]: prevLiked,
+      }));
     }
   };
+  
   
   // Add ReelSkeleton component
   const ReelSkeleton = () => {
@@ -81,7 +98,7 @@ const[isPost ,setIsPost]=useState(false)
         <div className="flex items-start justify-start gap-5 mt-2">
           <Skeleton animation="wave" height={40} width={40} /> {/* Like button */}
           <Skeleton animation="wave" height={40} width={40} /> {/* Comment button */}
-          <Skeleton animation="wave" height={40} width={40} /> {/* Share button */}
+        
         </div>
       </div>
     );
@@ -113,16 +130,17 @@ const[isPost ,setIsPost]=useState(false)
                 </div>
               ))}
             <div className="flex items-start justify-start gap-5 mt-2">
-              <div className="flex flex-col items-center cursor-pointer">
-                {isLiked[reel?.id] ? (
-                  <FaHeart size={25} color="red" onClick={() => handlePostLike(reel?.id)} />
-                ) : (
-                  <CiHeart size={25} onClick={() => handlePostLike(reel?.id)} />
-                )}
-                <span className="text-black text-sm">
-                  {(reel?.likeCount || 0) + (isLiked[reel?.id] ? 1 : 0)}
-                </span>
-              </div>
+            <div className="flex flex-col items-center cursor-pointer">
+  {isLiked[reel?.id] ? (
+    <FaHeart size={25} color="red" onClick={() => handlePostLike(reel?.id)} />
+  ) : (
+    <CiHeart size={25} onClick={() => handlePostLike(reel?.id)} />
+  )}
+  <span className="text-black text-sm">
+    {reel?.likeCount + (isLiked[reel?.id] ? 1 : 0)}
+  </span>
+</div>
+
               <button onClick={() => handlePostDetails(reel)} className="text-white flex flex-col items-center">
                 <FaComment className="text-blue-500 text-2xl" />
                 <span>Comment</span>

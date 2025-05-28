@@ -122,18 +122,22 @@ try {
           if (typeof setActiveSection === "function") {
             setActiveSection("home");
           } else {
-            // fallback: use router.push("/") or similar
             router.push("/");
           }
         } },
-        { name: 'Search', href: '#', icon: <Search />, action: toggleSearchDrawer }, // 🔹 Toggle on click
-     
-        { name: 'Reels', href: '#', icon: <Video /> ,action: () => setActiveSection("reels")},
-        { name: 'Messages', href: '/messages', icon: <MessageCircle /> ,action: () => setActiveSection("message")},
-        { name: 'Notifications', href: '#', icon: <Heart /> ,action:toggleNotificationDrawer },
-      {name:'create',href:"#",icon:<MdCreateNewFolder size={25}/>,action:toggleCreatePopup},
-        { name: 'Profile', href: '#', icon: <RxAvatar />,action: () => setActiveSection("profile") },
-        { name: 'logout', href: '#', icon: <IoLogOutOutline />,action:handleLogout},
+        { name: 'Search', href: '#', icon: <Search />, action: toggleSearchDrawer },
+        { name: 'Reels', href: '#', icon: <Video />, action: () => setActiveSection("reels") },
+        { name: 'Messages', href: '/messages', icon: <MessageCircle />, action: () => setActiveSection("message") },
+        { name: 'Notifications', href: '#', icon: <Heart />, action: toggleNotificationDrawer },
+        { name: 'create', href: "#", icon: <MdCreateNewFolder size={25}/>, action: toggleCreatePopup },
+        { name: 'Profile', href: '#', icon: <RxAvatar />, action: () => {
+          if (typeof setActiveSection === "function") {
+            setActiveSection("profile");
+          } else {
+            router.push("/profile");
+          }
+        }},
+        { name: 'logout', href: '#', icon: <IoLogOutOutline />, action: handleLogout },
     ];
 
     return (

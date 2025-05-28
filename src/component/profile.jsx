@@ -156,7 +156,7 @@ const PostSkeleton = () => {
                   item.posts.map((img, imgIndex) => (
                     <div
                       key={`${index}-${imgIndex}`}
-                      className="relative w-full h-[250px] sm:h-[300px] md:h-[350px] overflow-hidden"
+                      className="relative w-[90%] h-[250px] sm:h-[300px] md:h-[350px] overflow-hidden"
                     >
                       <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all duration-300">
                         <Image

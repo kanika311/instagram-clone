@@ -22,32 +22,36 @@ const PostDetail = ({ post, onClose  }) => {
   const { Comments } = useSelector((state) => state.post);
  const { user } = useAuth();       
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(updatedPost?.likeCount || 0);
+
   const [isComment, setComment] = useState(null);
- console.log(updatedPost,"postlikeupdat")
+  
+  // Add effect to check initial like status
+  useEffect(() => {
+    setIsLiked(updatedPost?.isLiked || false);
+    setLikeCount(updatedPost?.likeCount || 0);
+  }, [updatedPost]);
+
+  console.log(updatedPost,"postlikeupdat")
   //post like
   const id = updatedPost?.id;
 console.log(Comments,"comment")
 const handlePostLike = async () => {
-
-
   try {
-    const response = await postApi.postLike(id)
-
-
-    console.log("API Response", response);
+    const response = await postApi.postLike(id);
 
     if (response) {
-    
-      const response=await dispatch(ShowPost());
-      setIsLiked(true)
-      console.log(response,"postlike")
+      setIsLiked((prev) => !prev);
+      setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+      await dispatch(ShowPost());
     } else {
-      console.log("Like failed: ", response);
+      console.log("Like failed");
     }
   } catch (error) {
     console.log("Error in liking post:", error);
   }
 };
+
 
 
 
@@ -87,11 +91,10 @@ const handlePostLike = async () => {
         };
         const result = await dispatch(CommentReply(replyData));
         if (result) {
-          const result = await dispatch(getComment(updatedPost?.id))
-          console.log(response,"postcomment")
-          console.log("Reply posted", result);
+          // Refresh comments immediately after reply
+          await dispatch(getComment(updatedPost?.id));
           setComment("");
-          setSelectedCommentId(null); // reset after reply
+          setSelectedCommentId(null);
           return result;
         }
       } else {
@@ -101,9 +104,8 @@ const handlePostLike = async () => {
         };
         const result = await dispatch(postComment(commentData));
         if (result) {
-          const response=await dispatch(ShowPost());
-          console.log("Comment posted", result);
-          console.log(response,"postcomment")
+          // Refresh comments immediately after posting
+          await dispatch(getComment(updatedPost?.id));
           setComment("");
           return result;
         }
@@ -125,8 +127,8 @@ const handlePostLike = async () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (post?._id) {
-      handleGetComment(post._id);
+    if (post?.id) {
+      handleGetComment(post.id);
     }
   }, [post?._id, handleGetComment]);
 
@@ -154,160 +156,162 @@ const handlePostLike = async () => {
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center">
-      <div className="bg-white w-[90vw] max-w-5xl h-[90vh] flex rounded-lg overflow-hidden shadow-lg relative">
-        {/* Close Button */}
-
-
-        {/* Left: Image */}
-        {Array.isArray(post.posts) &&
-          post.posts.map((img, imgIndex) => (
-            <div key={imgIndex} className="w-1/2 h-[100%] flex items-start justify-start">
-              <Image
-                src={img?.pic}
-                alt="Post"
-                width={700}
-                height={1000}
-                className="min-h-full object-contain max-w-full"
-              />
-            </div>
-          ))}
-
-        {/* Right: Post content */}
-        <div className="w-1/2 flex flex-col justify-between">
-          {/* Top: User info */}
-          <div className="p-4 border-b flex items-center gap-20">
+    <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center px-2">
+    <div className="bg-white w-full max-w-5xl h-[90vh] md:h-[90vh] flex flex-col md:flex-row rounded-lg overflow-hidden shadow-lg relative">
+      {/* Left: Image */}
+      {Array.isArray(post.posts) &&
+        post.posts.map((img, imgIndex) => (
+          <div key={imgIndex} className="w-full md:w-1/2 h-[300px] md:h-full flex items-center justify-center bg-black">
             <Image
-              src={user?.picture}
-              alt="User"
-              width={40}
-              height={40}
-              className="rounded-full w-10 h-10 object-cover"
+              src={img?.pic||'/photos/avatar.jpg'}
+              alt="Post"
+              width={700}
+              height={1000}
+              className="h-full object-contain max-w-full"
             />
-            <h2 className="font-semibold">{user.username}</h2>
-            <MdDelete size={25} onClick={() => {
-              handleDeletePost(id);
-              onClose();
-            }} />
           </div>
-
-          {/* Middle: Caption + Comments */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {/* Caption */}
-            {updatedPost.caption && (
-              <div>
-                <p className="text-sm">
-                  <span className="font-semibold">{updatedPost?.location}</span> {updatedPost?.description}
-                </p>
-              </div>
-            )}
-
-            {/* Comments */}
-            {Comments?.map((comment, i) => (
-              <div key={i}>
-                <div className='flex items-start flex-col justify-start gap-2'>
-                  <div className='flex items-center justify-start gap-2'>
-                    <Image src={comment?.userId?.picture} alt='' width={30} height={30} className='rounded-full ' />  <p className="text-sm"> <span className="font-semibold">{comment?.userId?.name}</span> {comment?.text}
-                    </p>
-                  </div>
-                  <div className='flex items-start flex-row justify-start gap-10 '>
-                  <div  className='flex flex-col gap-4'>
+        ))}
+  
+      {/* Right: Post content */}
+      <div className="w-full md:w-1/2 flex flex-col justify-between">
+        {/* Top: User info */}
+        <div className="p-4 border-b flex items-center gap-4 sm:gap-8">
+          <Image
+            src={user?.picture||'/photos/avatar.jpg'}
+            alt="User"
+            width={40}
+            height={40}
+            className="rounded-full w-10 h-10 object-cover"
+          />
+          <h2 className="font-semibold text-sm sm:text-base">{user.username}</h2>
+          <MdDelete size={22} onClick={() => {
+            handleDeletePost(id);
+            onClose();
+          }} className="cursor-pointer" />
+        </div>
+  
+        {/* Middle: Caption + Comments */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* Caption */}
+          {updatedPost.caption && (
+            <div>
+              <p className="text-sm">
+                <span className="font-semibold">{updatedPost?.location}</span> {updatedPost?.description}
+              </p>
+            </div>
+          )}
+  
+          {/* Comments */}
+          {Comments?.map((comment, i) => (
+            <div key={i}>
+              <div className='flex flex-col gap-2'>
+                <div className='flex items-center gap-2'>
+                  <Image src={comment?.userId?.picture||'/photos/avatar.jpg'} alt='' width={30} height={30} className='rounded-full' />
+                  <p className="text-sm">
+                    <span className="font-semibold">{comment?.userId?.name}</span> {comment?.text}
+                  </p>
+                </div>
+                <div className='flex flex-row justify-start gap-10 items-start'>
+                  <div className='flex flex-col gap-4'>
                     <span
                       onClick={() => {
                         setSelectedCommentId(comment.id);
-                         setComment(`@${comment?.userId?.name} `);
+                        setComment(`@${comment?.userId?.name} `);
                       }}
                       className='text-md font-[400] text-gray-500 cursor-pointer'
                     >
                       Reply
-                    </span>  
-                      {/* Replies */}
-    {comment.replies?.length > 0 && (
-      <div className="pl-10 mt-3 border-l border-gray-200">
-        {comment.replies.map((reply, j) => (
-          <div key={j} className="flex items-start gap-3 mt-2">
-            <Image
-              src={reply?.userId?.picture}
-              alt=""
-              width={26}
-              height={26}
-              className="rounded-full object-cover w-6 h-6"
-            />
-            <div>
-              <p className="text-sm">
-              
-                 {reply?.text}
-              </p>
-              <div className="flex text-xs text-gray-500 gap-3 mt-1">
-                <span  onClick={() => {
-                        setSelectedCommentId(reply.id);
-                         setComment(`@${reply?.userId?.name} `);
-                      }}className="cursor-pointer text-blue-500 font-bold">Reply</span>
-                <HiOutlineDotsHorizontal size={14} onClick={() => handledelete(reply.id)} className="cursor-pointer" />
-              </div>
-            </div>
-          </div>
-        ))}   
-           </div>
-    )}  
-    </div>       
-                      <HiOutlineDotsHorizontal size={25} onClick={() => handledelete(comment.id)} />
+                    </span>
+                    {/* Replies */}
+                    {comment.replies?.length > 0 && (
+                      <div className="pl-4 mt-2 border-l border-gray-200">
+                        {comment.replies.map((reply, j) => (
+                          <div key={j} className="flex items-start gap-3 mt-2">
+                            <Image
+                              src={reply?.userId?.picture}
+                              alt=""
+                              width={26}
+                              height={26}
+                              className="rounded-full object-cover w-6 h-6"
+                            />
+                            <div>
+                              <p className="text-sm">{reply?.text}</p>
+                              <div className="flex text-xs text-gray-500 gap-3 mt-1">
+                                <span
+                                  onClick={() => {
+                                    setSelectedCommentId(reply.id);
+                                    setComment(`@${reply?.userId?.name} `);
+                                  }}
+                                  className="cursor-pointer text-blue-500 font-bold"
+                                >
+                                  Reply
+                                </span>
+                                <HiOutlineDotsHorizontal size={14} onClick={() => handledelete(reply.id)} className="cursor-pointer" />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                  <HiOutlineDotsHorizontal size={22} onClick={() => handledelete(comment.id)} className="cursor-pointer" />
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+  
+        {/* Delete Confirmation Modal */}
+        {isDelete && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center">
+            <div className="bg-white rounded-xl w-64 shadow-lg text-center">
+              <button
+                onClick={handleDeleteComment}
+                className="w-full py-3 text-red-500 font-semibold border-b"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setIsDelete(false)}
+                className="w-full py-3 font-semibold text-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-          {isDelete && (
-
-            <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center">
-              <div className="bg-white rounded-xl w-64 shadow-lg text-center">
-
-                <button
-                  onClick={handleDeleteComment}
-                  className="w-full py-3 text-red-500 font-semibold border-b"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={() => setIsDelete(false)}
-                  className="w-full py-3 font-semibold text-gray-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-
-
-          )}
-
-          {/* Bottom: Likes + Input */}
-          <div className="border-t p-4">
-            <div className="flex justify-start items-start gap-5 mb-[10px] cursor-pointer">
-              {isLiked ? (
-                <FaHeart size={25} color="red" />
-              ) : (
-                <CiHeart size={25} onClick={handlePostLike} />
-              )}
-              <FaRegComment size={25} />
-            </div>
-            <p className="text-sm mb-2 gap-4">
-              ❤️ Likes <strong>{updatedPost?.likeCount} </strong>
-            </p>
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                value={isComment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Add a comment..."
-                className="flex-1 border rounded-full px-4 py-2 text-sm"
-              />
-              <button onClick={handleComment} className="text-blue-500 font-semibold">Post</button>
-            </div>
+        )}
+  
+        {/* Bottom: Likes + Input */}
+        <div className="border-t p-4">
+          <div className="flex justify-start items-center gap-5 mb-2 cursor-pointer">
+            {isLiked ? (
+              <FaHeart size={22} color="red" onClick={handlePostLike} />
+            ) : (
+              <CiHeart size={22} color="black" onClick={handlePostLike} />
+            )}
+            <FaRegComment size={22} />
+          </div>
+          <p className="text-sm mb-2">
+            ❤️ Likes <strong>{likeCount}</strong>
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              value={isComment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Add a comment..."
+              className="flex-1 border rounded-full px-4 py-2 text-sm"
+            />
+            <button onClick={handleComment} className="text-blue-500 font-semibold">Post</button>
           </div>
         </div>
       </div>
-      <RxCross1 size={30} onClick={onClose} color='gray' className='absolute top-[5%] right-[8%]' />
     </div>
+  
+    {/* Close Button */}
+    <RxCross1 size={26} onClick={onClose} color='gray' className='absolute top-5 right-5 md:top-[5%] md:right-[8%] cursor-pointer' />
+  </div>
+  
   );
 };
 
